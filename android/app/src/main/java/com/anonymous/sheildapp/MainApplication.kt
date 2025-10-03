@@ -1,4 +1,4 @@
-package com.sheildapp
+package com.anonymous.sheildapp
 
 import android.app.Application
 import com.facebook.react.PackageList

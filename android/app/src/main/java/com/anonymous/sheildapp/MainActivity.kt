@@ -1,4 +1,4 @@
-package com.sheildapp
+package com.anonymous.sheildapp
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

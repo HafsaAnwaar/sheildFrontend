@@ -77,13 +77,13 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.sheildapp"
+    namespace 'com.anonymous.sheildapp'
     defaultConfig {
-        applicationId "com.sheildapp"
+        applicationId 'com.anonymous.sheildapp'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName "0.0.1"
     }
     signingConfigs {
         debug {
@@ -109,6 +109,7 @@ android {
 
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
+    classpath 'com.google.gms:google-services:4.3.15'
     implementation("com.facebook.react:react-android")
 
     if (hermesEnabled.toBoolean()) {
@@ -116,4 +117,7 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+      implementation 'com.google.android.gms:play-services-auth:20.7.0'
 }
+apply plugin: 'com.google.gms.google-services' // Add at the bottom
+
