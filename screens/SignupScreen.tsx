@@ -1,15 +1,31 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
 import styles from "./styles/SignupScreen.styles";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../navigation/AuthNavigator";
 
-export default function SignupScreen({ navigation }: any) {
+
+export default function SignupScreen() {
+  // <-- single-line change below: specify current route name 'Signup'
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, "Signup">>();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNo, setPhoneNo] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     if (!name || !email || !phoneNo || !password || !confirmPassword) {
       Alert.alert("Error", "Please fill in all fields");
       return;
@@ -19,9 +35,39 @@ export default function SignupScreen({ navigation }: any) {
       return;
     }
 
-    //  Later connect with Firebase or backend
-    Alert.alert("Success", `Welcome ${name}`);
-    navigation.replace("Login");
+    setLoading(true);
+    try {
+      const res = await fetch("http://192.168.0.102:5000/api/users/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: name,
+          email: email,
+          phone: phoneNo,
+          password: password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok || res.status === 201) {
+        const pendingId = data.pendingId || data.pending_id || null;
+        Alert.alert("Success", "OTP sent. Please verify.");
+        navigation.navigate("OtpVerificationScreen", {
+          pendingId,
+          email,
+          phone: phoneNo,
+        });
+      } else {
+        const err = data?.error || data?.message || "Registration failed";
+        Alert.alert("Error", String(err));
+      }
+    } catch (error: any) {
+      console.error("Signup error:", error);
+      Alert.alert("Error", "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -59,8 +105,24 @@ export default function SignupScreen({ navigation }: any) {
         onChangeText={setPassword}
       />
 
-      <TouchableOpacity style={styles.signupButton} onPress={handleSignup}>
-        <Text style={styles.signupButtonText}>Sign Up</Text>
+      <TextInput
+        placeholder="Confirm Password"
+        secureTextEntry
+        style={styles.input}
+        value={confirmPassword}
+        onChangeText={setConfirmPassword}
+      />
+
+      <TouchableOpacity
+        style={styles.signupButton}
+        onPress={handleSignup}
+        disabled={loading}
+      >
+        {loading ? (
+          <ActivityIndicator />
+        ) : (
+          <Text style={styles.signupButtonText}>Sign Up</Text>
+        )}
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate("Login")}>

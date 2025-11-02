@@ -1,46 +1,40 @@
-import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import SplashScreen from '../screens/SplashScreen';
-import LoginScreen from '../screens/LoginScreen';
-import SignupScreen from '../screens/SignupScreen';
-import SScreen from "../screens/SScreen";
-import HScreen from "../screens/HScreen";
-import EScreen from "../screens/EScreen";
-import IScreen from "../screens/IScreen";
-import LScreen from "../screens/LScreen";
-import DScreen from "../screens/DScreen";
-import HomeScreen from '../screens/HomeScreen';
-import AddContactScreen from '../screens/AddContactScreen';
+import React from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
+// Screens
+import DashboardScreen from "../screens/Dashboard";
+import SettingsScreen from "../screens/SettingsScreen";
+import ContactsScreen from "../screens/ContactsScreen";
+import LegalSupportScreen from "../screens/LegalSupportScreen";
+import SafeSpacesScreen from '../screens/SafeSpacesScreen';
+import SOSScreen from "../screens/SOSScreen";
 export type RootStackParamList = {
-  Splash: undefined;
-  Login: undefined;
-  Signup: undefined;
-  S: undefined;
-  H: undefined;
-  E: undefined;
-  I: undefined;
-  L: undefined;
-  D: undefined;
-  Home: undefined;
-  AddContact: undefined;  
+  Dashboard: undefined;
+  SettingsScreen: undefined;
+  ContactsScreen: undefined;
+  LegalSupportScreen: undefined;
+   SafeSpacesScreen: undefined;
+   SOSScreen: undefined;
+  // If you need Location and SOS, add them here:
+  // Location: undefined;
+  // SOS: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
   return (
-    <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Splash" component={SplashScreen} />
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Signup" component={SignupScreen} />
-      <Stack.Screen name="S" component={SScreen} />
-      <Stack.Screen name="H" component={HScreen} />
-      <Stack.Screen name="E" component={EScreen} />
-      <Stack.Screen name="I" component={IScreen} />
-      <Stack.Screen name="L" component={LScreen} />
-      <Stack.Screen name="D" component={DScreen} />
-      <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="AddContact" component={AddContactScreen} />
+    <Stack.Navigator
+      initialRouteName="Dashboard"
+      screenOptions={{ headerShown: false }}
+    >
+      <Stack.Screen name="Dashboard" component={DashboardScreen} />
+    
+      <Stack.Screen name="SettingsScreen" component={SettingsScreen} />
+      <Stack.Screen name="ContactsScreen" component={ContactsScreen} />
+      <Stack.Screen name="LegalSupportScreen" component={LegalSupportScreen} />
+     <Stack.Screen name="SafeSpacesScreen" component={SafeSpacesScreen} />
+<Stack.Screen name="SOSScreen" component={SOSScreen} />
     </Stack.Navigator>
   );
 }

@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity,Dimensions } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../navigation/AppNavigator";
-import { LinearGradient } from 'expo-linear-gradient';
+import { RootStackParamList } from "../navigation/AuthNavigator";
+// import { LinearGradient } from 'expo-linear-gradient';
 import HelpIcon from "../assets/icons/help.svg";
 import Dots from "./Dots";
 type HScreenNavProp = StackNavigationProp<RootStackParamList, "H">;
@@ -10,69 +10,132 @@ type HScreenNavProp = StackNavigationProp<RootStackParamList, "H">;
 type Props = {
   navigation: HScreenNavProp;
 };
-
+const { width } = Dimensions.get("window");
 export default function HScreen({ navigation }: Props) {
   useEffect(() => {
     const timer = setTimeout(() => {
       navigation.navigate("E");
-    }, 5000);
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, [navigation]);
   return (
-    <LinearGradient
-      colors={["#FFFFFF", "#FFFFFF"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-      style={styles.container}
-    >
-
-      <HelpIcon width={200} height={200} />
-      <Text style={styles.text}>H → Help
-      </Text>
-      <Text style={styles.description}>
-        Help is always within reach, offering support in times of need. Whether it’s guidance or quick response, assistance is never far away. You are never alone when help is built into your system.
-      </Text>
-      <Dots total={6} current={1} />
-
+    
+    <View style={styles.container}>
+      {/* Top Pink Ellipse */}
+      <View style={styles.topEllipse} />
       <TouchableOpacity
-        onPress={() => navigation.navigate("H")}
-      >
+          style={styles.nextButton}
+          onPress={() => navigation.navigate("E")}
+        >
+          <Text style={styles.nextText}>{"→"}</Text>
+        </TouchableOpacity>
+      {/* Illustration */}
+      <HelpIcon width={300} height={300} style={styles.icon} />
 
-      </TouchableOpacity>
-    </LinearGradient>
+      {/* Title */}
+      <Text style={styles.title}>Help</Text>
+
+      {/* Description */}
+      <Text style={styles.description}>
+         Help is always within reach, offering support in times of need. Whether it’s guidance or quick response, assistance is never far away. You are never alone when help is built into your system.
+      </Text>
+
+      {/* Bottom Pink Ellipse */}
+      <View style={styles.bottomEllipse} />
+
+      {/* Bottom Navigation Row */}
+      <View style={styles.bottomRow}>
+        <Dots total={6} current={1} />
+
+       
+      </View>
+    </View>
   );
 }
 
+const CIRCLE_SIZE = width * 1.4; // large enough to create a perfect half-circle
+
 const styles = StyleSheet.create({
   container: {
-       flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 30,
+    flex: 1,
+    paddingHorizontal: 20,
     paddingTop: 90,
+    backgroundColor: "#fff",
   },
-  letter: {
-    fontSize: 100,
-    fontWeight: "bold",
-    color: "#4A90E2",
+
+  // top circle positioned so only the bottom half is visible
+  topEllipse: {
+    position: "absolute",
+    top: -(CIRCLE_SIZE / 2) - 210, // push up so only half shows
+    left: (width - CIRCLE_SIZE) / 2, // center horizontally
+    width: CIRCLE_SIZE,
+    height: CIRCLE_SIZE,
+    borderRadius: CIRCLE_SIZE / 2,
+    backgroundColor: "#e9237fff",
+    zIndex: 0,
   },
-  text: {
-    fontSize: 32,
+
+  // bottom circle positioned so only the top half is visible
+  bottomEllipse: {
+    position: "absolute",
+    bottom: -(CIRCLE_SIZE / 2) - 210, // push down so only half shows
+    left: (width - CIRCLE_SIZE) / 2, // center horizontally
+    width: CIRCLE_SIZE,
+    height: CIRCLE_SIZE,
+    borderRadius: CIRCLE_SIZE / 2,
+    backgroundColor: "#e9237fff",
+    zIndex: 0,
+  },
+
+  icon: {
+    marginBottom: 30,
+    zIndex: 2, // ensure icon is above the circular backgrounds
+    alignSelf: "center",
+  },
+
+  title: {
+    fontSize: 36,
     fontWeight: "bold",
     color: "#333",
+    marginBottom: 15,
     textAlign: "left",
-    alignSelf: "flex-start",
-    marginLeft: 20,
+    zIndex: 2,
   },
+
   description: {
     fontSize: 16,
-    marginTop: 10,
-    textAlign: "left",
-    justifyContent: "center",
-
     color: "#555",
     lineHeight: 22,
-    paddingHorizontal: 10,
+    textAlign: "left",
+    paddingHorizontal: 5,
+    zIndex: 2,
+  },
+
+  bottomRow: {
+    position: "absolute",
+    bottom: 40,
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 5,
+    zIndex: 2,
+        marginLeft: 20,
+  },
+
+  nextButton: {
+    position: "absolute",
+    top: 30,
+    right: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 3,
+  },
+
+  nextText: {
+    fontSize: 24,
+    color: "#000",
+    fontWeight: "bold",
   },
 });

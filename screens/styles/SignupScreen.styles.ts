@@ -29,7 +29,7 @@ export default StyleSheet.create({
     elevation: 5,
   },
   signupButton: {
-    backgroundColor: '#df4869ff',
+    backgroundColor: '#e9237fff',
     padding: 12,
     borderRadius: 12,
     alignItems: 'center',

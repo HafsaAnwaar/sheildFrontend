@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
-import { View, Image, Text } from 'react-native';
+import {  Image, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';   
 import styles from './styles/SplashScreen';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
-import { RootStackParamList } from '../navigation/AppNavigator';
+import { RootStackParamList } from "../navigation/AuthNavigator";
+
 
 type SplashScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -23,12 +24,12 @@ const SplashScreen = () => {
   }, [navigation]);
 
   return (
-    <LinearGradient
-      colors={['#FBABBB', '#BE89D1']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-      style={styles.container}
-    >
+<LinearGradient
+          colors={[ "#f35f89ff","#e9237fff", "#b549fa"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.container}
+>
       <Image source={require('../assets/logo.png')} style={styles.logo} />
       <Text style={styles.title}>SHEILD</Text>
     </LinearGradient>

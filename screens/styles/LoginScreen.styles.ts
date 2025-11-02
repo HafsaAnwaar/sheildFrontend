@@ -41,7 +41,7 @@ export default StyleSheet.create({
     textAlign: 'left',
   },
   loginButton: {
-    backgroundColor: '#df4869ff',
+    backgroundColor: '#e9237fff',
     padding: 12,
     borderRadius: 12,
     alignItems: 'center',
@@ -82,7 +82,7 @@ export default StyleSheet.create({
     color: '#999',
   },
   signUpButton: {
-    backgroundColor: '#8b53cfff',
+    backgroundColor: '#b549fa',
     padding: 12,
     borderRadius: 12,
     alignItems: 'center',

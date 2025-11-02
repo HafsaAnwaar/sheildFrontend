@@ -1,8 +1,9 @@
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../navigation/AppNavigator";
-import { LinearGradient } from "expo-linear-gradient";
+import { RootStackParamList } from "../navigation/AuthNavigator";
+
+// import { LinearGradient } from "expo-linear-gradient";
 import SafetyIcon from "../assets/icons/safetyicon.svg";
 import Dots from "./Dots";
 
@@ -11,65 +12,135 @@ type SScreenNavProp = StackNavigationProp<RootStackParamList, "S">;
 type Props = {
   navigation: SScreenNavProp;
 };
+const { width } = Dimensions.get("window");
 
 export default function SScreen({ navigation }: Props) {
-
   useEffect(() => {
     const timer = setTimeout(() => {
       navigation.navigate("H");
-    }, 5000);
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, [navigation]);
 
   return (
-    <LinearGradient
-      colors={["#FFFFFF", "#FFFFFF"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-      style={styles.container}
-    >
-      <SafetyIcon width={200} height={200} />
+    <View style={styles.container}>
+      {/* Top Pink Half-Circle */}
+      <View style={styles.topEllipse} />
 
-      {/* Main Title */}
-      <Text style={styles.text}>S → Safety</Text>
+      <TouchableOpacity
+        style={styles.nextButton}
+        onPress={() => navigation.navigate("H")}
+      >
+        <Text style={styles.nextText}>{"→"}</Text>
+      </TouchableOpacity>
+
+      {/* Illustration */}
+      <SafetyIcon width={400} height={300} style={styles.icon} />
+
+      {/* Title */}
+      <Text style={styles.title}>Safety</Text>
 
       {/* Description */}
       <Text style={styles.description}>
-        Safety is the foundation of our mission, ensuring protection in every situation. It empowers people to live with confidence without fear of harm. With proactive measures, we make sure safety always comes first.
+        Safety is the foundation of our mission, ensuring protection in every
+        situation. It empowers people to live with confidence without fear of
+        harm. With proactive measures, we make sure safety always comes first.
       </Text>
 
-      {/* Dots Indicator */}
-      <Dots total={6} current={0} />
-    </LinearGradient>
+      {/* Bottom Pink Half-Circle */}
+      <View style={styles.bottomEllipse} />
+
+      {/* Bottom Navigation Row */}
+      <View style={styles.bottomRow}>
+        <Dots total={6} current={0} />
+      </View>
+    </View>
   );
 }
+
+const CIRCLE_SIZE = width * 1.4; // large enough to create a perfect half-circle
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 30,
+    paddingHorizontal: 20,
     paddingTop: 90,
+    backgroundColor: "#fff",
   },
-  text: {
-    fontSize: 32,
+
+  // top circle positioned so only the bottom half is visible
+  topEllipse: {
+    position: "absolute",
+    top: -(CIRCLE_SIZE / 2) - 210, // push up so only half shows
+    left: (width - CIRCLE_SIZE) / 2, // center horizontally
+    width: CIRCLE_SIZE,
+    height: CIRCLE_SIZE,
+    borderRadius: CIRCLE_SIZE / 2,
+    backgroundColor: "#e9237fff",
+    zIndex: 0,
+  },
+
+  // bottom circle positioned so only the top half is visible
+  bottomEllipse: {
+    position: "absolute",
+    bottom: -(CIRCLE_SIZE / 2) - 210, // push down so only half shows
+    left: (width - CIRCLE_SIZE) / 2, // center horizontally
+    width: CIRCLE_SIZE,
+    height: CIRCLE_SIZE,
+    borderRadius: CIRCLE_SIZE / 2,
+    backgroundColor: "#e9237fff",
+    zIndex: 0,
+  },
+
+  icon: {
+    marginBottom: 30,
+    zIndex: 2, // ensure icon is above the circular backgrounds
+    alignSelf: "center",
+  },
+
+  title: {
+    fontSize: 36,
     fontWeight: "bold",
     color: "#333",
+    marginBottom: 15,
     textAlign: "left",
-    alignSelf: "flex-start",
-    marginLeft: 20,
+    zIndex: 2,
   },
 
   description: {
     fontSize: 16,
-    marginTop: 10,
-    textAlign: "left",
-    justifyContent: "center",
-
     color: "#555",
     lineHeight: 22,
-    paddingHorizontal: 10,
+    textAlign: "left",
+    paddingHorizontal: 5,
+    zIndex: 2,
+  },
+
+  bottomRow: {
+    position: "absolute",
+    bottom: 40,
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 5,
+    zIndex: 2,
+    marginLeft: 20,
+  },
+
+  nextButton: {
+    position: "absolute",
+    top: 30,
+    right: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 3,
+  },
+
+  nextText: {
+    fontSize: 24,
+    color: "#000",
+    fontWeight: "bold",
   },
 });

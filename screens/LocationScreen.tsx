@@ -1,44 +1,44 @@
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity,Dimensions } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity ,Dimensions } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/AuthNavigator";
-
-import DIcon from "../assets/icons/defense.svg";
+   
+import LocationIcon from "../assets/icons/location.svg";
 import Dots from "./Dots";
-type DScreenNavProp = StackNavigationProp<RootStackParamList, "D">;
+type LocationScreenNavProp = StackNavigationProp<RootStackParamList, "Location">;
 
 type Props = {
-  navigation: DScreenNavProp;
+  navigation: LocationScreenNavProp;
 };
 const { width } = Dimensions.get("window");
-export default function DScreen({ navigation }: Props) {
+export default function LocationScreen({ navigation }: Props) {
   useEffect(() => {
         const timer = setTimeout(() => {
-          navigation.navigate("Login");
+          navigation.navigate("D");
         }, 3000);
     
         return () => clearTimeout(timer);
       }, [navigation]);
-  return (
+ return (
     
     <View style={styles.container}>
       {/* Top Pink Ellipse */}
       <View style={styles.topEllipse} />
       <TouchableOpacity
           style={styles.nextButton}
-          onPress={() => navigation.navigate("Login")}
+          onPress={() => navigation.navigate("D")}
         >
           <Text style={styles.nextText}>{"→"}</Text>
         </TouchableOpacity>
       {/* Illustration */}
-      <DIcon width={300} height={300} style={styles.icon} />
+      <LocationIcon width={300} height={300} style={styles.icon} />
 
       {/* Title */}
-      <Text style={styles.title}>Defense</Text>
+      <Text style={styles.title}>Location</Text>
 
       {/* Description */}
       <Text style={styles.description}>
-         Defense mechanisms are vital for protecting against threats. Our system employs advanced strategies to safeguard your environment. Stay secure with proactive defense measures.
+         Location awareness is crucial for effective emergency response. Our system pinpoints your location, ensuring help arrives swiftly. Stay safe and informed with real-time location tracking.
       </Text>
 
       {/* Bottom Pink Ellipse */}
@@ -46,7 +46,7 @@ export default function DScreen({ navigation }: Props) {
 
       {/* Bottom Navigation Row */}
       <View style={styles.bottomRow}>
-        <Dots total={6} current={5} />
+        <Dots total={6} current={4} />
 
        
       </View>
