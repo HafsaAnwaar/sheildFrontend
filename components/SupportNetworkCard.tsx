@@ -33,7 +33,7 @@ const VISIBLE_LIMIT = 5;
 export default function SupportNetworkCard({
   contacts = DEFAULT_CONTACTS,
   onManage,
-  apiBase = "http://192.168.0.102:5000",
+  apiBase = "https://sheildbackend.up.railway.app",
 }: {
   contacts?: Contact[];
   onManage?: () => void;

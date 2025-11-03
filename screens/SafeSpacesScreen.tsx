@@ -24,7 +24,7 @@ import * as Location from "expo-location";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import getAuthHeaders from "../helpers/authHeaders";
 
-const API_BASE_URL = "http://192.168.0.102:5000";
+const API_BASE_URL = "https://sheildbackend.up.railway.app";
 const STORAGE_KEY_SAFEPLACES = "SAFE_PLACES_V1";
 const STORAGE_KEY_CURRENT_LOCATION = "CURRENT_LOCATION_V1";
 const MAP_HEIGHT = 250;

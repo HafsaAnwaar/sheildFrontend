@@ -15,7 +15,7 @@ export default function OtpVerificationScreen({ route, navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
 
-  const BASE_URL = "http://192.168.0.102:5000";
+  const BASE_URL = "https://sheildbackend.up.railway.app";
 
   const handleVerify = async () => {
     if (!otp) {

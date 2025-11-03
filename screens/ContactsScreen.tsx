@@ -37,7 +37,7 @@ type Contact = {
   initials: string;
 };
 
-const API_BASE_URL = "http://192.168.0.102:5000"; // set to your backend
+const API_BASE_URL = "https://sheildbackend.up.railway.app"; // set to your backend
 
 const ContactsScreen: React.FC<Props> = ({ navigation }) => {
 
