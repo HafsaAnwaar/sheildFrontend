@@ -198,6 +198,7 @@ export default function SafeSpacesScreen({ navigation }: Props) {
   // ---------------------------
   // NEW: reverse geocode (throttled) + save canonical current location
   // ---------------------------
+  
   const maybeReverseGeocodeAndSave = async (latitude: number, longitude: number, force = false) => {
     try {
       const now = Date.now();

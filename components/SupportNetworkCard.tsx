@@ -10,8 +10,8 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
+import getAuthHeaders from "../helpers/authHeaders"; // same helper used by ContactsScreen
 
 type Contact = {
   id: string;
@@ -64,12 +64,26 @@ export default function SupportNetworkCard({
     let mounted = true;
     const controller = new AbortController();
 
-    const fetchContacts = async () => {
+    const mapBackendToContact = (c: any): Contact => {
+      const name = c.full_name ?? c.name ?? c.id ?? "Unknown";
+      return {
+        id: c.id,
+        label: name,
+        number: c.phone ?? c.number ?? "",
+        subtitle: c.relation ?? undefined,
+        priority: "other",
+        color: undefined,
+      };
+    };
+
+    const fetchWithAuth = async (attemptRetry = true) => {
       setLoading(true);
       setError(null);
+
       try {
-        const token = await AsyncStorage.getItem("accessToken");
-        if (!token) {
+        const headers = await getAuthHeaders();
+        if (!headers || !headers.Authorization) {
+          // not logged in
           if (mounted) {
             setUserContacts([]);
             setLoading(false);
@@ -77,14 +91,25 @@ export default function SupportNetworkCard({
           return;
         }
 
-        const res = await fetch(`${apiBase}/api/contacts`, {
+        console.debug("SupportNetworkCard: using Authorization:", (headers.Authorization || "").slice(0, 40));
+        let res = await fetch(`${apiBase}/api/contacts`, {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+          headers,
           signal: controller.signal,
         });
+
+        // if token expired or invalid, try one retry (get refreshed headers from helper)
+        if (res.status === 401 && attemptRetry) {
+          console.debug("SupportNetworkCard: 401 received, retrying once after refreshing headers");
+          const refreshedHeaders = await getAuthHeaders();
+          if (refreshedHeaders && refreshedHeaders.Authorization) {
+            res = await fetch(`${apiBase}/api/contacts`, {
+              method: "GET",
+              headers: refreshedHeaders,
+              signal: controller.signal,
+            });
+          }
+        }
 
         if (!res.ok) {
           const txt = await res.text().catch(() => "");
@@ -94,19 +119,12 @@ export default function SupportNetworkCard({
         }
 
         const data = await res.json();
-        // backend returns array of contacts with fields: id, full_name, phone, relation
         const list: Contact[] = Array.isArray(data)
           ? data
-              .filter((c: any) => c && c.phone) // keep only with phone
-              .map((c: any) => ({
-                id: c.id,
-                label: c.full_name || c.name || c.id,
-                number: c.phone,
-                subtitle: c.relation || undefined,
-                priority: "other",
-                color: undefined,
-              }))
+              .filter((c: any) => c && (c.phone || c.number)) // keep only with phone
+              .map(mapBackendToContact)
           : [];
+
         if (mounted) setUserContacts(list);
       } catch (err: any) {
         console.error("SupportNetworkCard fetch error:", err);
@@ -116,7 +134,7 @@ export default function SupportNetworkCard({
       }
     };
 
-    fetchContacts();
+    fetchWithAuth();
 
     return () => {
       mounted = false;
