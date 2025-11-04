@@ -41,7 +41,7 @@ type SOSScreenNavProp = StackNavigationProp<RootStackParamList, "SOSScreen">;
 type Props = { navigation: SOSScreenNavProp; };
 type ContactItem = { id?: string; name?: string; phone?: string; email?: string };
 
-const API_BASE_URL = "https://sheildbackend.up.railway.app";
+const API_BASE_URL = "https://sheild-backend-production.up.railway.app";
 const STORAGE_KEY_CURRENT_LOCATION = "CURRENT_LOCATION_V1";
 
 export default function SOSScreen({ navigation }: Props) {

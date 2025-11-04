@@ -42,7 +42,7 @@ export default function SettingsScreen({ navigation }: Props) {
       const refreshToken = await AsyncStorage.getItem("refreshToken");
 
       // If you want to change the logout URL, edit this line
-      const url = "https://sheildbackend.up.railway.app/api/users/logout";
+      const url = "https://sheild-backend-production.up.railway.app/api/users/logout";
 
       if (refreshToken) {
         try {

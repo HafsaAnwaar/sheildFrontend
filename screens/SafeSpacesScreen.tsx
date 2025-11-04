@@ -1,4 +1,4 @@
-// screens/SafeSpacesScreen.tsx
+// src/screens/SafeSpacesScreen.tsx
 import React, { useEffect, useRef, useState } from "react";
 import {
   View,
@@ -24,7 +24,7 @@ import * as Location from "expo-location";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import getAuthHeaders from "../helpers/authHeaders";
 
-const API_BASE_URL = "https://sheildbackend.up.railway.app";
+const API_BASE_URL = "https://sheild-backend-production.up.railway.app";
 const STORAGE_KEY_SAFEPLACES = "SAFE_PLACES_V1";
 const STORAGE_KEY_CURRENT_LOCATION = "CURRENT_LOCATION_V1";
 const MAP_HEIGHT = 250;
@@ -50,10 +50,25 @@ export default function SafeSpacesScreen({ navigation }: Props) {
   const lastReverseRef = useRef<number>(0);
   const lastSavedLocationRef = useRef<{ latitude: number; longitude: number } | null>(null);
 
+  // Helper: build a per-user storage key so cached places are separated per user
+  const getPerUserStorageKey = async () => {
+    try {
+      const headers = await getAuthHeaders();
+      // extract token suffix (safe short string) — will be different per login session
+      const token = headers?.Authorization?.split?.(" ")?.[1] ?? "";
+      const suffix = token ? token.slice(-8) : "anon";
+      return `${STORAGE_KEY_SAFEPLACES}_${suffix}`;
+    } catch (e) {
+      return STORAGE_KEY_SAFEPLACES + "_anon";
+    }
+  };
+
   useEffect(() => {
     (async () => {
       try {
-        const raw = await AsyncStorage.getItem(STORAGE_KEY_SAFEPLACES);
+        // load per-user cached safe places
+        const key = await getPerUserStorageKey();
+        const raw = await AsyncStorage.getItem(key);
         if (raw) setSafePlaces(JSON.parse(raw));
       } catch (e) {
         console.warn("load safe places cache failed", e);
@@ -74,6 +89,7 @@ export default function SafeSpacesScreen({ navigation }: Props) {
         // trigger initial reverse-geocode & save
         maybeReverseGeocodeAndSave(initial.latitude, initial.longitude, true);
 
+        // fetch only this user's saved places near me
         fetchNearbyPlaces(pos.coords.latitude, pos.coords.longitude);
 
         const sub = await Location.watchPositionAsync(
@@ -106,12 +122,22 @@ export default function SafeSpacesScreen({ navigation }: Props) {
   }, []);
 
   useEffect(() => {
-    AsyncStorage.setItem(STORAGE_KEY_SAFEPLACES, JSON.stringify(safePlaces)).catch(() => {});
+    // persist per-user cache when safePlaces changes and recompute nearest police
+    (async () => {
+      try {
+        const key = await getPerUserStorageKey();
+        await AsyncStorage.setItem(key, JSON.stringify(safePlaces));
+      } catch (e) {
+        // ignore cache write failures
+      }
+    })();
     computeNearestPolice(safePlaces);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [safePlaces]);
 
   useEffect(() => {
     computeNearestPolice(safePlaces);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentLocation]);
 
   // helpers
@@ -198,7 +224,6 @@ export default function SafeSpacesScreen({ navigation }: Props) {
   // ---------------------------
   // NEW: reverse geocode (throttled) + save canonical current location
   // ---------------------------
-  
   const maybeReverseGeocodeAndSave = async (latitude: number, longitude: number, force = false) => {
     try {
       const now = Date.now();
@@ -251,13 +276,14 @@ export default function SafeSpacesScreen({ navigation }: Props) {
   };
 
   // ---------------------------
-  // network (unchanged) ...
+  // network (modified to request mine=true)
   // ---------------------------
   const fetchNearbyPlaces = async (latitude: number, longitude: number) => {
     setLoading(true);
     try {
       const headers = await getAuthHeaders();
-      const q = `lat=${encodeURIComponent(latitude)}&lng=${encodeURIComponent(longitude)}&radius=5000`;
+      // IMPORTANT: include mine=true so backend returns only this user's saved places
+      const q = `lat=${encodeURIComponent(latitude)}&lng=${encodeURIComponent(longitude)}&radius=5000&mine=true`;
       const res = await fetch(`${API_BASE_URL}/api/safeplaces?${q}`, { method: "GET", headers });
       if (!res.ok) {
         const text = await res.text().catch(() => "");
@@ -280,7 +306,11 @@ export default function SafeSpacesScreen({ navigation }: Props) {
         id: p._id, name: p.name, type: p.type, address: p.address, distanceMeters: p.distanceMeters, coords: p.location?.coordinates
       })));
       setSafePlaces(normalized);
-      AsyncStorage.setItem(STORAGE_KEY_SAFEPLACES, JSON.stringify(normalized)).catch(() => {});
+      // persist per-user cache
+      try {
+        const key = await getPerUserStorageKey();
+        await AsyncStorage.setItem(key, JSON.stringify(normalized));
+      } catch (_) {}
     } catch (e) {
       console.warn("fetchNearbyPlaces failed:", e);
     } finally {
@@ -288,12 +318,13 @@ export default function SafeSpacesScreen({ navigation }: Props) {
     }
   };
 
-  // create: now accepts address and sends to server
+  // create: now accepts address and sends to server, then persists per-user cache
   const createSafePlace = async (name: string, latitude: number, longitude: number, address?: string) => {
     try {
       const headers = await getAuthHeaders();
+      const headersWithJson = { ...headers, "Content-Type": "application/json" };
       const body = { name, address: address || "", latitude, longitude };
-      const res = await fetch(`${API_BASE_URL}/api/safeplaces`, { method: "POST", headers, body: JSON.stringify(body) });
+      const res = await fetch(`${API_BASE_URL}/api/safeplaces`, { method: "POST", headers: headersWithJson, body: JSON.stringify(body) });
       const txt = await res.text().catch(() => null);
       if (!res.ok) {
         console.warn("createSafePlace failed", res.status, txt);
@@ -302,8 +333,14 @@ export default function SafeSpacesScreen({ navigation }: Props) {
       }
       const created = JSON.parse(txt || "{}");
       const sp = { _id: created._id || created.id, name: created.name, address: created.address || "", location: created.location, distanceMeters: created.distanceMeters, type: created.type || created.meta?.type || null, meta: created.meta || {} };
-      setSafePlaces(s => [sp, ...s]);
-      AsyncStorage.setItem(STORAGE_KEY_SAFEPLACES, JSON.stringify([sp, ...safePlaces])).catch(() => {});
+      // update UI and per-user cache
+      setSafePlaces((s) => {
+        const next = [sp, ...s];
+        (async () => {
+          try { const key = await getPerUserStorageKey(); await AsyncStorage.setItem(key, JSON.stringify(next)); } catch (_) {}
+        })();
+        return next;
+      });
     } catch (e) {
       console.warn("createSafePlace error", e);
       Alert.alert("Network error", "Failed to create place");
@@ -322,7 +359,14 @@ export default function SafeSpacesScreen({ navigation }: Props) {
           Alert.alert("Failed", "Could not remove place");
           return;
         }
-        setSafePlaces(s => s.filter(sp => sp._id !== id));
+        // update UI and per-user cache
+        setSafePlaces((s) => {
+          const next = s.filter(sp => sp._id !== id);
+          (async () => {
+            try { const key = await getPerUserStorageKey(); await AsyncStorage.setItem(key, JSON.stringify(next)); } catch (_) {}
+          })();
+          return next;
+        });
       } catch (e) {
         console.warn("deleteSafePlace error", e);
         Alert.alert("Network error", "Failed to remove place");

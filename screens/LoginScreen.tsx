@@ -55,7 +55,7 @@ export default function LoginScreen() {
     }
 
     setLoading(true);
-    const url = `https://sheildbackend.up.railway.app/api/users/login`;
+    const url = `https://sheild-backend-production.up.railway.app/api/users/login`;
 
     try {
       const res = await fetch(url, {

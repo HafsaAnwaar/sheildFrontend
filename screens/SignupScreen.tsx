@@ -37,7 +37,7 @@ export default function SignupScreen() {
 
     setLoading(true);
     try {
-      const res = await fetch("https://sheildbackend.up.railway.app/api/users/register", {
+      const res = await fetch("https://sheild-backend-production.up.railway.app/api/users/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

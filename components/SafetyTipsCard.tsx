@@ -54,9 +54,9 @@ export default function SafetyTipsCard({
   // === NETWORK CONFIG - adjust LAN_IP if testing on a physical device ===
   const LAN_IP = ""; // set to e.g. "192.168.0.105" if using a device
   const candidateBases = [
-    "https://sheildbackend.up.railway.app",
-    "https://sheildbackend.up.railway.app",
-    "https://sheildbackend.up.railway.app",
+    "https://sheild-backend-production.up.railway.app",
+    "https://sheild-backend-production.up.railway.app",
+    "https://sheild-backend-production.up.railway.app",
   ];
   if (LAN_IP && LAN_IP.trim()) candidateBases.push(`http://${LAN_IP.trim()}:5000`);
 
